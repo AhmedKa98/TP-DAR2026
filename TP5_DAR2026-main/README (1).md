@@ -131,11 +131,6 @@ Le serveur offre la conversion d'un montant en **euros vers le dinar tunisien**.
 
 Le serveur est lancé en premier, puis le client.
 
-<!-- CAPTURE 1 : IntelliJ, onglet Run du serveur ConversionServer (serveur démarré) -->
-![Activité 5-1 — Serveur](images/tp5_1_conversion_serveur.png)
-
-<!-- CAPTURE 2 : IntelliJ, onglet Run du client ConversionClient avec le résultat -->
-![Activité 5-1 — Client](images/tp5_2_conversion_client.png)
 
 **Résultat obtenu :**
 
@@ -199,12 +194,6 @@ ctx.rebind("BK", obj);
 Context ctx = new InitialContext();   // lit jndi.properties
 IBanque stub = (IBanque) ctx.lookup("BK");
 ```
-
-<!-- CAPTURE 4 : IntelliJ, console serveur ET console client avec la version JNDI -->
-![Activité 5-2 — JNDI](images/tp5_4_banque_jndi.png)
-
-<!-- CAPTURE 5 (conseillée) : arborescence du projet IntelliJ montrant jndi.properties à la racine de src -->
-![Position de jndi.properties](images/tp5_5_jndi_properties.png)
 
 ### 6.5 Résultats
 
