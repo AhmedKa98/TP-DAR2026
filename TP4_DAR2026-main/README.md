@@ -36,15 +36,6 @@ L'envoi se fait avec `send()`, la réception avec `receive()`, sans garantie de 
 - `new DatagramSocket()` : le système choisit un port local libre.
 - Le message est construit au format `[NomUtilisateur] : texte`, converti en octets, placé dans un `DatagramPacket` avec l'adresse et le port du serveur, puis envoyé par `send()`.
 
-### Captures d'écran
-
-<!-- CAPTURE 1 : console du serveur ServeurUDP recevant le message (IP, port, contenu) -->
-![Étape 1 — Serveur](images/tp4_1_serveur.png)
-
-<!-- CAPTURE 2 : console du client ClientUDP après l'envoi du message -->
-![Étape 1 — Client](images/tp4_2_client.png)
-
----
 
 ## Étape 2 — Chat bidirectionnel avec diffusion
 
@@ -66,18 +57,7 @@ Il garde un `Set<SocketAddress>` des clients connus. Un ensemble évite les doub
 
 Au démarrage, le client envoie « a rejoint le chat ». Ce premier datagramme permet au serveur d'enregistrer son adresse, sans quoi il ne recevrait aucun message tant qu'il n'a rien écrit.
 
-### Captures d'écran
 
-<!-- CAPTURE 3 : console du serveur ServeurChatUDP (clients enregistrés, messages) -->
-![Étape 2 — Serveur](images/tp4_3_serveur_chat.png)
-
-<!-- CAPTURE 4 : console du client 1 -->
-![Étape 2 — Client 1](images/tp4_4_client1.png)
-
-<!-- CAPTURE 5 : console du client 2 (reçoit les messages du client 1, puis test de /quit) -->
-![Étape 2 — Client 2](images/tp4_5_client2.png)
-
----
 
 ## Synthèse
 
