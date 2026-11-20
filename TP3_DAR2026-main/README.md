@@ -40,16 +40,6 @@ Le thread principal ne fait qu'une chose : boucler sur `accept()`. À chaque con
 - affiche son adresse IP via `socket.getRemoteSocketAddress()` ;
 - lance un `ClientProcess` puis retourne immédiatement à `accept()`.
 
-### Résultat des tests locaux
-
-<!-- CAPTURE 1 : console IntelliJ du serveur avec au moins 2 clients connectés -->
-![Serveur — plusieurs clients connectés](images/tp3_1_serveur.png)
-
-<!-- CAPTURE 2 : consoles des clients (onglets Run) -->
-![Clients connectés](images/tp3_2_clients.png)
-
----
-
 ## Activité 3-2 : calculatrice multi-thread
 
 ### 3.2.1 Principe
@@ -57,12 +47,6 @@ Le thread principal ne fait qu'une chose : boucler sur `accept()`. À chaque con
 Le service de calculatrice du TP2 est intégré au serveur multi-thread.
 Client et serveur échangent des objets `Operation` qui transportent à la fois la requête (opérandes, opérateur) et la réponse (résultat, erreur, compteur global).
 
-### Résultat des tests locaux
-
-<!-- CAPTURE 3 : console serveur + console client montrant des opérations et le compteur global -->
-![Calculatrice multi-thread](images/tp3_3_calculatrice.png)
-
----
 
 ## Conclusion
 
