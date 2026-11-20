@@ -78,7 +78,6 @@ Si on lance le serveur sans lancer de client, seul le premier message apparait e
 
 4.1 Code du client 
 
-<img width="748" height="527" alt="Capture d&#39;écran 2026-10-13 215223" src="https://github.com/user-attachments/assets/52af2b2a-b780-42fa-93ee-d78ee83438eb"/>  
 
 # Explication détaillée :
 
@@ -149,22 +148,6 @@ flush() force l'envoi immédiat des données sans attendre que le tampon soit pl
 Le calcul x * 5 est fait uniquement côté serveur : le client n'a pas de calculatrice. 
 
 
-<img width="1402" height="190" alt="image" src="https://github.com/user-attachments/assets/7782f557-a1d1-44f9-ac00-abf65abecf17" />
-
-
-<img width="1405" height="151" alt="image" src="https://github.com/user-attachments/assets/03e5d5f0-fffe-4564-aaae-fd6a5f60e04f" />
-
-
-
-<img width="1427" height="195" alt="image" src="https://github.com/user-attachments/assets/e26969c3-5811-49d2-9871-6bdc8ec77c95" />
-
-
-
-<img width="625" height="157" alt="image" src="https://github.com/user-attachments/assets/672fe24a-31a9-47e4-8666-4fe3182d6e8e" /> 
-
-
-
-
 # 2.4 Pourquoi DataInputStream / DataOutputStream pour les entiers négatifs ?
 
 Si l'on utilisait directement OutputStream.write(int),un seul octet serait envoyé(les 8 bits de poids faible) : un entier comme 300 ou -4 serait déformé  
@@ -189,7 +172,6 @@ Les deux côtés ferment ensuite leurs flux et leurs sockets : la fermeture est 
 
 Si le client était arrêté brutalement, le serveur recevrait une EOFException / SocketException, attrapée par le catch (IOException e).  
 
-<img width="557" height="192" alt="image" src="https://github.com/user-attachments/assets/5a0a0c78-321b-42dd-8720-27bbb41064b6" />   
 
 # Activité 1-3 : Amélioration du service de calculatrice 
 
@@ -206,8 +188,6 @@ le serveur doit écouter sur l'adresse IP réelle de sa machine (exmp  192.168.1
 le client doit se connecter à cette adresse IP. 
 
 
-
-<img width="432" height="146" alt="image" src="https://github.com/user-attachments/assets/53e7dbfc-c7c3-4b1b-97ba-c6e40ea14ca8" />  
 
 ici serveur non disponible (ip invalide / n'est pas le meme reseau )  
 
