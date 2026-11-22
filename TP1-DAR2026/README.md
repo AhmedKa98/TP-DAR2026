@@ -1,268 +1,354 @@
-# TP1-DAR2026 — Les sockets en mode connecté TCP
-
-Enseignante des TPs : Mme Zeineb DAOUD 
-
-Étudiant : Ahmed Karray
-
-# Sommaire
-Activité 1-1 : Première connexion Client/Serveur
-
-Activité 1-2 : Service de calculatrice
-
-Activité 1-3 : Amélioration du service de calculatrice
-
-# Activité 1-1 : Première connexion Client/Serveur
-
-# Objectif
-
-Etablir une premiere communication Client/Serveur en Java à l'aide des sockets TCP . Deux applications distinctes sont creees :
-Apprendre à établir une communication Client/Serveur (C/S) en Java à l’aide des
-sockets en mode connecté TCP.
-
-# Etape 1 : Preparation de l'environnement Git
-
-La commande ( # git --version  )permet de vérifier que Git est installe.
-
-# Etape 2 : Preparation de l'environnement Java
-
-La commande java --version permet de vérifier la version du JDK.
-
-capture git + java 
-
-# Etape 3 : Creation du serveur
-# Création du projet et initialisation du dépôt Git
-
-Un projet Java nommé TP1-DAR2026 a été créé dans Intellij avec les réglages par défaut, dans la répertoire sous le nom
-AhmedKarray_LSI3_DevAppReparties 
-
-
-# Structure du projet
-
-Deux packages ont été créés dans le dossier src :
-
-serverPackage contenant la classe Server
-clientPackage contenant la classe Client
-
-capture sur src 
-# Code du serveur
-
-capture sur code du serveur 
-# Explication détaillée :
-
-import java.net.ServerSocket; import java.net.Socket; : les classes sont dans le package java.net 
-
-
-new ServerSocket(1234) : crée un socket d'écoute qui réserve le port 1234 sur la machine. Le serveur est alors prêt à recevoir des demandes de connexion.
-
-
-serverSocket.accept() : méthode bloquante. Le programme s'arrête sur cette ligne tant qu'aucun client ne se connecte. 
-
-Quand un client arrive, elle retourne un nouvel objet Socket (clientSocket) qui représente la communication avec ce client précis.
-clientSocket.close() puis serverSocket.close() : libèrent les ressources (la connexion avec le client, puis le port d'écoute). 
-
-try/catch (IOException e) : la création du socket, accept() et close() peuvent lever une IOException (port déjà utilisé, erreur réseau…). 
-Elle doit donc être gérée. 
-# Exécution du serveur et interprétation  
-
-capture sur le execution de serveur 
-
-Le message Je suis un serveur en attente la connexion d'un client s'affiche : le ServerSocket a été créé avec succès sur le port 1234 et le serveur est bloqué sur accept().
-Le message un client est connecté s'affiche ensuite : accept() a été débloqué car un client s'est connecté (le client de l'étape 4 a été lancé).
-Le serveur ferme ses sockets et le programme se termine (<terminated>). 
-
-# Rmq: 
-
-Si on lance le serveur sans lancer de client, seul le premier message apparait et le programme reste en attente indefiniment. 
-
-# Etape 4 : Création du client 
-
-4.1 Code du client 
-
-
-# Explication détaillée :
-
-new Socket("127.0.0.1", 1234) : le client demande une connexion TCP à la machine d'adresse 127.0.0.1 (adresse de boucle locale) sur le port 1234,le même que celui du serveur. 
-
-Si le serveur n'est pas lancé,  
-le constructeur lève une exception attrapée par le catch. 
-
-socket.close() : ferme la connexion proprement.
-
-
-# Résultat attendu et interprétation :
-
-
-Je suis un client pas encore connecté…
-Client connecté au serveur   
-
-
-
-Le premier message est affiché avant la connexion. Le second prouve que le constructeur Socket(...) a réussi :   
-
-le serveur était bien en attente (il a affiché de son côté un client est connecté).  
-
-La communication TCP est donc établie. 
-
-# Remplacement de localhost par une adresse IP 
-
-L’adresse localhost a été remplacée par l’adresse IP réelle de la machine serveur afin d’établir la connexion à travers le réseau local.  
-Cette modification permet au client de se connecter au serveur à condition que celui-ci écoute sur l’adresse IP utilisée et que le réseau autorise la communication sur le port choisi.  
-
-# Activité 1-2 : Service de calculatrice 
-
-# Objectif
-
-Étendre l'application de l'activité 1-1 pour que le client envoie un entier x au serveur, que le serveur calcule x * 5 et renvoie le résultat.  
-
-On utilise DataInputStream / DataOutputStream pour échanger les entiers.  
-
-# Etape 1 : Préparation de l'espace de travail
-
-On repart du projet TP1-DAR2026 de l'activite 1-1 (meme depôt Git). 
-# Etape 2 : Création du service de multiplication 
-
-# 2.1 Principe du protocole  
-
-   CLIENT                                   SERVEUR
-     |  --------- connexion TCP ---------->   | accept()
-     |  1. saisit x au clavier                |
-     |  2. writeInt(x) ---------------------> | 3. readInt()
-     |                                        | 4. résultat = x * 5
-     |  6. readInt()  <---------------------- | 5. writeInt(résultat)
-     |  7. affiche le résultat     
-
-     
-
-
-
-# Explication détaillée :
-
-socket.getInputStream() / getOutputStream() : donnent les flux bruts d'octets du socket (lecture /écriture).  
-
-DataOutputStream / DataInputStream : enveloppent ces flux pour lire/ecrire des types primitifs Java directement (writeInt,readInt). 
-
-readInt() est bloquant :le serveur attend que le client envoie x (c'est l'étape « le serveur était en attente de ce nombre »). 
-
-flush() force l'envoi immédiat des données sans attendre que le tampon soit plein. 
- 
-Le calcul x * 5 est fait uniquement côté serveur : le client n'a pas de calculatrice. 
-
-
-# 2.4 Pourquoi DataInputStream / DataOutputStream pour les entiers négatifs ?
-
-Si l'on utilisait directement OutputStream.write(int),un seul octet serait envoyé(les 8 bits de poids faible) : un entier comme 300 ou -4 serait déformé  
-
-à la réception (read() renvoie une valeur entre 0 et 255).
-
-DataOutputStream.writeInt(x) envoie les 4 octets de l'entier (32 bits,complément à deux),et DataInputStream.readInt() les reconstitue exactement.  
-
-Les valeurs négatives sont donc transmises correctement,sans perte.    
-
-# avec boucle (Client1_2_1/Server1_2_1)
-
-# Explication détaillee :
-
-Le 0 sert de message de fin : le client l'envoie au serveur (sinon le serveur resterait bloqué sur readInt() pour toujours),puis sort de la boucle. 
-
-Le serveur lit x, détecte 0 et sort de sa boucle while : aucun résultat n'est renvoyé pour 0, donc le client ne fait pas de readInt() dans ce cas  
-
-(sinon il se bloquerait).  
-
-Les deux côtés ferment ensuite leurs flux et leurs sockets : la fermeture est propre des deux côtés.  
-
-Si le client était arrêté brutalement, le serveur recevrait une EOFException / SocketException, attrapée par le catch (IOException e).  
-
-
-# Activité 1-3 : Amélioration du service de calculatrice 
-
-# Etape 1 : Connexion Client/Serveur sur deux machines distinctes  
-
-# 1.1 Principe 
-
-Avec 127.0.0.1 /localhost, le client ne peut joindre que la machine locale.  
-
-Pour utiliser deux machines du même réseau local (Wi-Fi/Ethernet) :
-
-le serveur doit écouter sur l'adresse IP réelle de sa machine (exmp  192.168.1.20/192.168.2.2) , 
-
-le client doit se connecter à cette adresse IP. 
-
-
-
-ici serveur non disponible (ip invalide / n'est pas le meme reseau )  
-
-Les deux machines doivent être dans le même sous-reseau (ex 192.168.1.x).
-
-# 1.3 Classes utilisées 
-
- Classe	Rôle 
- 
-java.net.InetAddress	Représente une adresse IP (InetAddress.getByName("192.168.1.20")). 
-
-java.net.InetSocketAddress	Représente le couple adresse IP + port.  
-
-# Etape 2 : Service de calculatrice amélioré
-
-# 2.1 Fonctionnalités
-
-Le service propose quatre opérations : Addition, Soustraction, Multiplication, Division.  
-
-Le client :
-
-affiche un menu et lit le choix de l'opération ; 
-
-lit les valeurs ; 
-
-transmet le choix + les valeurs au serveur ; 
-
-reçoit et affiche le résultat calculé par le serveur. 
-
-# Explication (cote serveur) :
-
-new ServerSocket() (sans argument) crée un socket non lié ; bind(new InetSocketAddress(adresse, PORT)) le lie ensuite à l'IP réelle + port.  
-
-Le serveur n'accepte alors que les connexions arrivant par cette interface réseau. 
-
-InetAddress.getLocalHost() donne l'adresse de la machine, mais sur une machine ayant plusieurs cartes réseau (Wi-Fi, VirtualBox)   
-
-elle peut être incorrecte : on peut donc passer l'IP voulue en argument . 
-
-clientSocket.getInetAddress() affiche l'IP de la machine cliente connectée.  
-
-Le switch effectue le calcul côté serveur selon le code reçu.  
-
-La division par zéro est détectée (statut = 1) pour ne pas renvoyer Infinity. 
-
-Le cast (double) avant la multiplication évite un débordement d'entier.  
-
-# Explication (cote client ) :
-
-new Socket() + connect(new InetSocketAddress(ipServeur, PORT), 5000) : le client se connecte à l'IP réelle du serveur.  
-
-Le timeout de 5 s évite de rester bloqué si la machine est injoignable .  
-
-Le menu est affiché en boucle jusqu'au choix 0 qui sert de message de fin. 
-
-Le client ne calcule rien : il envoie le choix et les opérandes, puis affiche le résultat . 
-
-L'ordre des writeInt côté client doit être exactement celui des readInt côté serveur   sinon les valeurs sont décalées.
-
-
-# Conclusion 
-
-# Activité 1-1 :  
-
-j’ai créé un serveur (ServerSocket et accept()) et un client (Socket) qui établissent une première connexion TCP sur la même machine, avec un dépôt Git pour le projet. 
-
-# Activité 1-2 : 
-
-le client envoie un entier au serveur avec DataOutputStream, le serveur calcule x * 5 et renvoie le résultat avec DataInputStream. Une boucle permet plusieurs saisies, et 0 termine la communication en fermant les sockets. 
-
-# Activité 1-3 :   
-
-l’application fonctionne entre deux machines distinctes grâce à l’adresse IP réelle du serveur (InetAddress, InetSocketAddress). La calculatrice propose quatre opérations (+, −, ×, ÷) avec un menu, et le calcul reste côté serveur.
-
-
-
-
-
+# TP1-DAR2026 --- Les sockets en mode connecté TCP
+
+**Enseignante des TPs :** Mme Zeineb DAOUD\
+**Étudiant :** Ahmed Karray
+
+## Sommaire
+
+-   [Activité 1-1 : Première connexion Client/Serveur](#activité-1-1--première-connexion-clientserveur)
+-   [Activité 1-2 : Service de calcul](#activité-1-2--service-de-calcul)
+-   [Activité 1-3 : Amélioration du service](#activité-1-3--amélioration-du-service)
+
+------------------------------------------------------------------------
+
+## Activité 1-1 : Première connexion Client/Serveur
+
+Cette première activité permet de mettre en place une communication TCP
+entre un client et un serveur.
+
+### Serveur --- `Server.java`
+
+``` java
+package serverPackage;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class Server1_1 {
+
+    public static void main(String[] args) {
+        try {
+            ServerSocket serverSocket = new ServerSocket(1234);
+            System.out.println("je suis un serveur en attente la connexion d'un client ");
+            Socket clientSocket = serverSocket.accept();
+            System.out.println("un client est connecte");
+            clientSocket.close();
+            serverSocket.close();
+        } catch (IOException e) {
+            System.out.println("Erreur : " + e.getMessage());
+        }
+    }
+}
+```
+
+### Client --- `Client.java`
+
+``` java
+package clientPackage;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+import java.util.Scanner;
+
+public class Client1_1 {
+
+    public static void main(String[] args) {
+        try {
+            System.out.println("je suis un client pas encore connecte..");
+            Socket socket = new Socket("127.0.0.1", 1234);
+            System.out.println("client connecte au serveur");
+            socket.close();
+        } catch (IOException e) {
+            System.out.println("Erreur : " + e.getMessage());
+        }
+    }
+}
+```
+
+### Résultat attendu
+
+-   Le serveur attend une connexion sur le port `1234`.
+-   Le client se connecte au serveur et lui envoie un message.
+-   Le serveur affiche le message reçu et renvoie une confirmation.
+
+------------------------------------------------------------------------
+
+## Activité 1-2 : Service de calcul
+
+Dans cette activité, le serveur reçoit un entier envoyé par le client,
+calcule son produit par 5 et renvoie le résultat. La communication
+utilise `DataInputStream` et `DataOutputStream`.
+
+### Serveur --- `ServerCalcul.java`
+
+``` java
+package serverPackage;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class Server1_2_1 {
+
+    public static void main(String[] args) {
+        try {
+            ServerSocket serverSocket =new ServerSocket(1234);
+            System.out.println("je suis un serveur en attente la connexion d'un client ");
+            Socket clientSocket = serverSocket.accept();
+            System.out.println("un client est connecté");
+            DataInputStream  in  = new DataInputStream(clientSocket.getInputStream());
+            DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
+            while (true) {
+                int x = in.readInt();
+                if (x == 0) {                      
+                    System.out.println("le client a envoyé 0 : fin de la communication.");
+                    break;
+                }
+                int resultat = x * 5;
+                System.out.println("Reçu :" + x + " ->  envoye : " + resultat);
+                out.writeInt(resultat);
+                out.flush();
+            }
+            in.close();
+            out.close();
+            clientSocket.close();
+            serverSocket.close();
+            System.out.println("sockets fermés côté serveur.");
+
+        } catch (IOException e) {
+            System.out.println("Erreur : " + e.getMessage());
+        }
+    }
+}
+```
+
+### Client --- `ClientCalcul.java`
+
+``` java
+package clientPackage;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+import java.util.Scanner;
+
+public class Client1_2_1 {
+
+    public static void main(String[] args) {
+        try {
+            System.out.println("je suis un client pas encore connecte..");
+            Socket socket =new Socket("127.0.0.1", 1234);
+            System.out.println("client connecté au serveur");
+            DataOutputStream out =new DataOutputStream(socket.getOutputStream());
+            DataInputStream  in  =new DataInputStream(socket.getInputStream());
+            Scanner sc =new Scanner(System.in);
+            int x;
+            do {
+                System.out.print("entrez un entier (0 pour quitter) : ");
+                x= sc.nextInt();
+                out.writeInt(x);                  
+                out.flush();
+                if (x!= 0) {
+                    int resultat = in.readInt();
+                    System.out.println("Résultat (x * 5) = " + resultat);
+                }
+            } while (x!= 0);
+            System.out.println("fin de la communication.");
+            sc.close();
+            in.close();
+            out.close();
+            socket.close();
+        } catch (IOException e) {
+            System.out.println("Erreur : " + e.getMessage());
+        }
+    }
+}
+```
+
+### Résultat attendu
+
+Le client peut envoyer plusieurs entiers au serveur. Pour chaque entier
+reçu, le serveur calcule `nombre * 5` et retourne le résultat.
+
+------------------------------------------------------------------------
+
+## Activité 1-3 : Amélioration du service
+
+Cette dernière activité transforme le service précédent en une
+calculatrice TCP. Le client choisit une opération parmi l'addition, la
+soustraction, la multiplication et la division, puis envoie les deux
+nombres au serveur.
+
+### Serveur --- `ServerCalculatrice.java`
+
+``` java
+package serverPackage;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class Server1_3 {
+    private static final int PORT = 1234;
+    public static void main(String[] args) {
+        // IP reelle du serveur : passee en argument,sinon IP détectee automatiquement
+        String ipServeur = (args.length > 0) ? args[0] : null;
+
+        try {
+            InetAddress adresse = (ipServeur != null)
+                    ? InetAddress.getByName(ipServeur)
+                    : InetAddress.getLocalHost();
+            ServerSocket serverSocket = new ServerSocket();
+            serverSocket.bind(new InetSocketAddress(adresse, PORT));
+            System.out.println("serveur en ecoute sur " + adresse.getHostAddress() + ":" + PORT);
+            System.out.println("se suis un serveur en attente la connexion d'un client ");
+            Socket clientSocket = serverSocket.accept();
+            System.out.println("un client est connecte : "
+                    + clientSocket.getInetAddress().getHostAddress());
+            DataInputStream  in  = new DataInputStream(clientSocket.getInputStream());
+            DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
+            while (true) {
+                int choix = in.readInt();
+                if (choix == 0) {
+                    System.out.println("Le client a quitté.");
+                    break;
+                }
+                int x = in.readInt();
+                int y = in.readInt();
+                int statut = 0;
+                double resultat = 0;
+                switch (choix) {
+                    case 1: resultat = x + y;
+                    break;
+                    case 2: resultat = x - y; 
+                    break;
+                    case 3: resultat =(double) x * y; 
+                    break;
+                    case 4:
+                        if (y == 0) statut =1;               // division par 0
+                        else resultat =(double) x / y;
+                        break;
+                    default: statut =2;                       // operation inconnue
+                }
+
+                System.out.println("Operation " + choix + ":" + x + "," + y
+                        + "  ->  statut=" + statut + " resultat=" + resultat);
+                out.writeInt(statut);
+                if (statut == 0) {
+                    out.writeDouble(resultat);
+                }
+                out.flush();
+            }
+            in.close();
+            out.close();
+            clientSocket.close();
+            serverSocket.close();
+            System.out.println("Sockets fermés côté serveur.");
+        } catch (IOException e) {
+            System.out.println("Erreur : " + e.getMessage());
+        }
+    }
+}
+```
+
+### Client --- `ClientCalculatrice.java`
+
+``` java
+package clientPackage;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.Scanner;
+
+public class Client1_3 {
+    private static final int PORT = 1234;
+    public static void main(String[] args) {
+        // IP de la machine serveur : en argument, sinon saisie au clavier
+        Scanner sc = new Scanner(System.in);
+        String ipServeur;
+        if (args.length > 0) {
+            ipServeur = args[0];
+        } else {
+            System.out.print("Adresse IP du serveur : ");
+            ipServeur = sc.nextLine().trim();
+        }
+        try {
+            System.out.println("Je suis un client pas encore connecté…");
+            Socket socket =new Socket();
+            socket.connect(new InetSocketAddress(ipServeur, PORT), 5000); // 5s
+            System.out.println("Client connecté au serveur " + ipServeur + ":" + PORT);
+            DataOutputStream out =new DataOutputStream(socket.getOutputStream());
+            DataInputStream  in  =new DataInputStream(socket.getInputStream());
+            int choix;
+            do {
+                System.out.println("\n/*-+ CALCULATRICE +-*/");
+                System.out.println("1 - Addition");
+                System.out.println("2 - Soustraction");
+                System.out.println("3 - Multiplication");
+                System.out.println("4 - Division");
+                System.out.println("0 - Quitter");
+                System.out.print("votre choix : ");
+                choix = sc.nextInt();
+                if (choix == 0) {
+                    out.writeInt(0);              
+                    out.flush();
+                    break;
+                }
+                if (choix < 1 || choix > 4) {
+                    System.out.println("choix invalide, recommencez.");
+                    continue;
+                }
+                System.out.print("Entrez x : ");
+                int x = sc.nextInt();
+                System.out.print("Entrez y : ");
+                int y = sc.nextInt();
+                out.writeInt(choix);
+                out.writeInt(x);
+                out.writeInt(y);
+                out.flush();
+                int statut = in.readInt();
+                if (statut == 0) {
+                    double resultat = in.readDouble();
+                    System.out.println("Résultat = " + resultat);
+                } else if (statut == 1) {
+                    System.out.println("Erreur : division par 0 impossible.");
+                } else {
+                    System.out.println("Erreur : operation inconnue.");
+                }
+            } while (true);
+
+            System.out.println("Fin de la communication.");
+            in.close();
+            out.close();
+            socket.close();
+        } catch (IOException e) {
+            System.out.println("Erreur : " + e.getMessage());
+        }
+        sc.close();
+    }
+}
+```
+
+### Résultat attendu
+
+Le client sélectionne une opération et saisit deux nombres. Le serveur
+effectue le calcul demandé et renvoie le résultat. Le cas de la division
+par zéro et les choix invalides sont également traités.
+
+------------------------------------------------------------------------
+
+## Conclusion
+
+Ce TP m'a permis de comprendre le fonctionnement des sockets TCP et les
+échanges de données entre un client et un serveur en Java. Les trois
+activités montrent progressivement comment établir une connexion,
+envoyer des données et construire un service de calcul à distance.
