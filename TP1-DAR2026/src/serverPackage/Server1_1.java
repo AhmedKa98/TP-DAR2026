@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class Server1_2 {
+public class Server1_1 {
 
     public static void main(String[] args) {
         try {
